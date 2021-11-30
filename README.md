@@ -6,6 +6,7 @@ WITH canvassing_cte AS (
 	    , r.resultshortname AS results
 	    , u.firstname||' '||u.lastname AS canvasser
 	    , cam.campaignname AS campaign
+	    , c.vanid||c.canvassedby||LEFT(c.datecanvassed,10) AS concat_field
 	FROM tmc_van.aya_contactscontacts_mym c
 	LEFT JOIN tmc_van.tsm_tmc_results r
 		USING (resultid)
@@ -13,9 +14,7 @@ WITH canvassing_cte AS (
 		ON u.userid = c.canvassedby
 	LEFT JOIN tmc_van.aya_campaigns cam
 		USING (campaignid)
-
---Update this line to only include records from your specific campaign: WHERE cam.campaignname = 'CAMPAIGN NAME HERE' 
-
+	WHERE cam.campaignname = 'CAMPAIGN NAME HERE' 
 	ORDER BY 1,2 DESC
 )
 
@@ -76,12 +75,13 @@ SELECT m.vanid
     , CASE WHEN (c.rank = 5 AND n.notecategoryname = 'General UCHC Canvassing Notes (stand out info, details, clarifications, data edits, etc)') THEN n.notetext ELSE NULL END AS canvass_notes
     , CASE WHEN (c.rank = 5 AND n.notecategoryname = 'Rental, Immediate Eviction Notes') THEN n.notetext ELSE NULL END AS rental_eviction_notes
     , CASE WHEN (c.rank = 5 AND n.notecategoryname = 'Rental Campaign, Vulnurable Population Notes') THEN n.notetext ELSE NULL END AS rentcam_vulpop_notes
+--Add additional canvass attempts by copying the previous canvass attempt data chunk and incrementing the rank
 FROM canvassing_cte c
 
 LEFT JOIN tmc_van.aya_contacts_mym m
 	ON m.vanid = c.vanid
 LEFT JOIN tmc_van.aya_contactsnotes_mym n
-	ON n.contactscontactid = c.contactscontactid
+	ON n.vanid||n.createdby||LEFT(n.datecreated,10) = c.concat_field
 LEFT JOIN tmc_van.aya_contactsemails_mym e
 	ON e.contactsemailid = m.emailid
 LEFT JOIN tmc_van.aya_contactsaddresses_mym a
