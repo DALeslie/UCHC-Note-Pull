@@ -3,3 +3,6 @@ Line 17: insert the name of the campaign used to track results
 Line 18: insert the one day that where the campaign wasn’t applied to the canvass results. Use YYYY-MM-DD formatting.
 Line 79: if there were instances in which someone was canvassed >5 times you can copy the previous canvass attempt code block and just increment c.rank by 1
 Lines 82-93: update the table names to match your America Votes EveryAction tables. In order, you’ll need: contacts/persons table, notes table, emails, addresses, phones, and phone types.
+
+
+Can you make the edits to the code and try running it? You should get at least one row for every contact attempt, and when there are notes for each contact in your campaign they will populate in their appropriate column.
